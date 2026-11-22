@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071525"><meta name="description" content="Your personal JARVIS assistant">
+<link rel="manifest" href="manifest.webmanifest"><title>JARVIS</title>
+<style>
+:root{color-scheme:dark;--bg:#06111f;--panel:#0d2034;--line:#1b4665;--cyan:#55d9ff;--muted:#9ab5c8}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#123654 0,#06111f 48%);color:#eaf8ff;font:16px system-ui,sans-serif;min-height:100vh}.wrap{max-width:760px;margin:auto;padding:22px 16px 32px}.top{display:flex;align-items:center;justify-content:space-between}.brand{letter-spacing:.22em;color:var(--cyan);font-weight:800}.pill{border:1px solid var(--line);border-radius:99px;padding:6px 10px;color:var(--muted);font-size:12px}.orb{width:154px;height:154px;border:1px solid #2c9bc6;border-radius:50%;margin:34px auto 16px;display:grid;place-items:center;box-shadow:0 0 30px #1aa6df55,inset 0 0 25px #1aa6df33;position:relative}.orb:before,.orb:after{content:"";position:absolute;border:1px solid #2c9bc677;border-radius:50%;inset:12px}.orb:after{inset:25px;border-style:dashed}.core{width:66px;height:66px;border-radius:50%;background:radial-gradient(circle,#b9f5ff,#168bbd 55%,#06334f);box-shadow:0 0 35px #38cfff}.status{text-align:center;color:var(--cyan);font-size:13px;letter-spacing:.12em}.sub{text-align:center;color:var(--muted);font-size:13px;margin:8px 0 22px}.panel{background:#0b1b2cdd;border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:14px}.log{height:260px;overflow:auto;display:flex;flex-direction:column;gap:10px}.msg{max-width:88%;padding:10px 12px;border-radius:14px;line-height:1.4;white-space:pre-wrap}.bot{background:#102d45;border:1px solid #1c5477;align-self:flex-start}.you{background:#123c51;align-self:flex-end}.label{font-size:11px;color:var(--muted);margin-bottom:4px}.entry{display:flex;gap:8px;margin-top:12px}.entry input{min-width:0;flex:1;background:#071525;border:1px solid var(--line);border-radius:12px;padding:13px;color:white;font-size:16px}.btn{border:1px solid #2387b1;background:#0d3852;color:#eafaff;border-radius:12px;padding:12px 14px;font-weight:650}.btn.primary{background:#087ba6}.btn:active{transform:scale(.98)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.hint{font-size:12px;color:var(--muted);line-height:1.5}.footer{text-align:center;color:#7292a8;font-size:11px;margin-top:18px}
+</style></head>
+<body><main class="wrap">
+<div class="top"><div class="brand">J.A.R.V.I.S.</div><div class="pill">ANDROID EDITION · v0.1</div></div>
+<div class="orb"><div class="core"></div></div><div class="status" id="status">SYSTEM ONLINE</div><div class="sub">Just A Rather Very Intelligent System</div>
+<section class="panel"><div class="label">CONVERSATION</div><div class="log" id="log" aria-live="polite"><div class="msg bot">Hello. I am JARVIS. I am ready. Try “What time is it?”, “What can you do?” or ask me to remember a note during this session.</div></div>
+<div class="entry"><input id="input" placeholder="Message JARVIS…" autocomplete="off"><button class="btn primary" id="send">Send</button></div>
+<div class="actions"><button class="btn" id="mic">🎙 Speak</button><button class="btn" id="stop">■ Stop voice</button><button class="btn" id="clear">Clear chat</button></div></section>
+<section class="panel"><div class="label">QUICK COMMANDS</div><div class="actions"><button class="btn quick" data-q="What time is it?">Time</button><button class="btn quick" data-q="What is today's date?">Date</button><button class="btn quick" data-q="What can you do?">Capabilities</button><button class="btn quick" data-q="Tell me a motivational thought">Motivate me</button></div><p class="hint">This first phone build works without an API key. It handles basic commands on your device. Internet-based AI answers, long-term memory and phone automation will be added in later stages.</p></section>
+<div class="footer">JARVIS prototype · Microphone works in supported browsers over HTTPS</div>
+</main>
+<script>
+const $=id=>document.getElementById(id), log=$('log');let notes=[];
+function add(text,who){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight}
+function speak(t){if(!('speechSynthesis'in window))return; speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1;u.pitch=.92;speechSynthesis.speak(u)}
+function answer(raw){const q=raw.toLowerCase().trim();let a;
+if(/\b(time|clock)\b/.test(q))a='The time is '+new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(new Date())+'.';
+else if(/\b(date|today)\b/.test(q))a='Today is '+new Intl.DateTimeFormat(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(new Date())+'.';
+else if(q.includes('what can you do')||q.includes('help'))a='I can tell you the time and date, respond to basic commands, speak my replies, and keep temporary notes during this session. My AI connection and deeper Android controls are planned next.';
+else if(q.startsWith('remember ')){const n=raw.slice(9).trim();notes.push(n);a='I have kept this note for the current session: '+n;}
+else if(q.includes('my notes')||q.includes('what did i ask you to remember'))a=notes.length?'Your session notes are: '+notes.map((n,i)=>(i+1)+'. '+n).join(' '):'You have not asked me to remember anything in this session.';
+else if(q.includes('motivat'))a='Progress is built one small step at a time. Keep going; your future system starts with what you build today.';
+else if(q.includes('hello')||q.includes('hi jarvis'))a='Hello. At your service.';
+else a='I can handle basic offline commands at the moment. To answer open-ended questions, I will need an AI connection in the next development stage. Try asking for the time, date, or say “remember buy groceries”.';
+add(a,'bot');speak(a)}
+function send(t){const v=(t??$('input').value).trim();if(!v)return;add(v,'you');$('input').value='';answer(v)}
+$('send').onclick=()=>send();$('input').addEventListener('keydown',e=>{if(e.key==='Enter')send()});document.querySelectorAll('.quick').forEach(b=>b.onclick=()=>send(b.dataset.q));
+$('stop').onclick=()=>speechSynthesis?.cancel();$('clear').onclick=()=>{log.innerHTML='';add('Conversation cleared. I am ready.','bot')};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec;
+$('mic').onclick=()=>{if(!SR){$('status').textContent='VOICE INPUT NOT SUPPORTED';add('Your current browser does not provide speech recognition. Please try Google Chrome on Android and allow microphone access. You can still type messages.','bot');return}if(rec){try{rec.stop()}catch(e){}}rec=new SR();rec.lang=navigator.language||'en-IN';rec.interimResults=false;rec.maxAlternatives=1;rec.onstart=()=>$('status').textContent='LISTENING…';rec.onend=()=>$('status').textContent='SYSTEM ONLINE';rec.onerror=e=>{add('Microphone issue: '+e.error+'. Check browser microphone permission.','bot')};rec.onresult=e=>send(e.results[0][0].transcript);rec.start()};
+if('serviceWorker'in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script></body></html>
